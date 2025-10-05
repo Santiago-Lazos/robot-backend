@@ -10,3 +10,6 @@ const TelemetrySchema = new mongoose.Schema(
 );
 
 export const Telemetry = mongoose.model('Telemetry', TelemetrySchema);
+
+
+// prueba de proteccion de main

@@ -74,6 +74,16 @@ router.post('/upload', upload.single('image'), async (req, res) => {
   }
 });
 
+// Obtener todas las imágenes
+router.get('/', async (req, res) => {
+  try {
+    const images = await Image.find();
+    res.json(images);
+  } catch (err) {
+    res.status(500).json({ message: err.message || String(err) });
+  }
+});
+
 // TODO Elegir uno de los 3 métodos de escaneo de QR (multipart/form-data, URL, base64)
 
 // Escanea QR desde imagen subida por multipart/form-data

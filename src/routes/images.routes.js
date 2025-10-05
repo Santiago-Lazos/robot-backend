@@ -16,7 +16,7 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4'
 });
 
-// Subir imagen: Guardar en Cloudflare R2 y registrar en MongoDB
+// SUBIR IMAGEN: Guardar en Cloudflare R2 y registrar en MongoDB
 router.post('/upload', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
@@ -74,7 +74,7 @@ router.post('/upload', upload.single('image'), async (req, res) => {
   }
 });
 
-// Obtener todas las imágenes
+// OBTENER TODAS LAS IMÁGENES
 router.get('/', async (req, res) => {
   try {
     const images = await Image.find();
@@ -84,9 +84,28 @@ router.get('/', async (req, res) => {
   }
 });
 
+// OBTENER UNA IMAGEN POR ID
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const image = await Image.findById(id);
+    if (!image) {
+      return res.status(404).json({ message: 'Imagen no encontrada' });
+    }
+
+    const imageObj = image.toObject(); // Convertir el documento a un objeto JS plano
+    const { _id, __v, ...rest } = imageObj; // Eliminar atributos innecesarios
+    res.json({
+      ...rest
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message || String(err) });
+  }
+});
+
 // TODO Elegir uno de los 3 métodos de escaneo de QR (multipart/form-data, URL, base64)
 
-// Escanea QR desde imagen subida por multipart/form-data
+// ESCANEAR QR: desde imagen subida por multipart/form-data
 router.post('/scan-qr', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
@@ -105,7 +124,7 @@ router.post('/scan-qr', upload.single('image'), async (req, res) => {
   }
 });
 
-// Escanea QR desde URL
+// ESCANEAR QR: desde URL
 router.post('/scan-qr/url', async (req, res) => {
   try {
     const { url } = req.body || {};
@@ -139,7 +158,7 @@ router.post('/scan-qr/url', async (req, res) => {
   }
 });
 
-// Escanea QR desde base64
+// ESCANEAR QR: desde base64
 router.post('/scan-qr/base64', async (req, res) => {
   try {
     let { base64 } = req.body || {};
@@ -157,7 +176,7 @@ router.post('/scan-qr/base64', async (req, res) => {
   }
 });
 
-// Analizar imagen con IA
+// ANALIZAR IMAGEN CON IA
 router.post('/ai-analyze', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {

@@ -1,22 +1,43 @@
+// ===============================
+// src/routes/status.routes.js
+// ===============================
 import { Router } from 'express';
 import { bus } from '../mqtt.js';
-import { Telemetry } from '../models/Telemetry.js';
-
-let lastState = { status: 'unknown' };
-bus.on('state', async (s) => {
-  lastState = s;
-  // opcional: persistir telemetría
-  try { await Telemetry.create({ battery: s.battery, action: s.action, payload: s }); } catch {}
-});
 
 const router = Router();
 
-// Último estado conocido
-router.get('/', (req, res) => {
-  res.json({ lastState });
+// Estado simulado del robot
+let lastState = { status: 'unknown', battery: 100, mode: 'manual' };
+
+// Logs simulados
+const logs = [];
+
+// Cuando llega un estado desde MQTT
+bus.on('state', (s) => {
+  lastState = { ...lastState, ...s };
+  logs.push({
+    _id: logs.length + 1,
+    timestamp: new Date(),
+    level: 'robot_status',
+    robotStatus: s,
+  });
 });
 
-// Eventos en tiempo real (SSE)
+/**
+ * GET /api/status
+ * Devuelve el último estado conocido + últimos logs
+ */
+router.get('/', (req, res) => {
+  res.json({
+    robot: lastState,
+    logs: logs.slice(-10).reverse(), // últimos 10
+  });
+});
+
+/**
+ * GET /api/status/stream
+ * Envío en tiempo real (SSE)
+ */
 router.get('/stream', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');

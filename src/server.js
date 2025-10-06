@@ -1,10 +1,13 @@
+// ===============================
+// src/server.js
+// ===============================
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import mongoose from 'mongoose';
 import { config } from './config.js';
 import commandsRoutes from './routes/commands.routes.js';
 import statusRoutes from './routes/status.routes.js';
+import sensorsRoutes from './routes/sensors.routes.js';
 
 const app = express();
 app.use(cors());
@@ -13,19 +16,11 @@ app.use(morgan('dev'));
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 
-app.use('/api/commands', commandsRoutes);
+// Rutas actualizadas según tareas asignadas
+app.use('/api/robot/command', commandsRoutes);
+app.use('/api/sensors/data', sensorsRoutes);
 app.use('/api/status', statusRoutes);
 
-async function start() {
-  if (config.mongoUri) {
-    await mongoose.connect(config.mongoUri);
-    console.log('MongoDB conectado');
-  } else {
-    console.log('⚠️  MONGO_URI no configurado. Corriendo sin persistencia.');
-  }
-
-  app.listen(config.port, () => {
-    console.log(`API escuchando en http://localhost:${config.port}`);
-  });
-}
-start();
+app.listen(config.port, () => {
+  console.log(`✅ API escuchando en http://localhost:${config.port}`);
+});

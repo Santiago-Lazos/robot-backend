@@ -1,16 +1,53 @@
+// ===============================
+// src/routes/commands.routes.js
+// ===============================
 import { Router } from 'express';
 import { publishCommand } from '../mqtt.js';
-import { commandSchema } from '../libs/validator.js';
 
 const router = Router();
 
-// Envía comando al robot (MQTT)
-router.post('/', (req, res) => {
-  const parse = commandSchema.safeParse(req.body);
-  if (!parse.success) return res.status(400).json({ error: parse.error.flatten() });
+// Base de datos simulada en memoria
+const commands = [];
 
-  publishCommand(parse.data.command);
-  res.json({ ok: true, sent: parse.data.command });
+/**
+ * POST /api/robot/command
+ * Envía un comando al robot por MQTT
+ */
+router.post('/', (req, res) => {
+  const { robotId, source, task, value, userId } = req.body;
+
+  if (!task) return res.status(400).json({ error: 'El campo "task" es obligatorio.' });
+
+  const command = {
+    _id: commands.length + 1,
+    robotId: robotId || 'robot-demo',
+    source: source || 'web_rc',
+    task,
+    value: value || null,
+    timestamp: new Date(),
+    status: 'pending',
+    userId: userId || null,
+  };
+
+  // Guardar en memoria
+  commands.push(command);
+
+  // Publicar comando vía MQTT
+  publishCommand(command);
+
+  res.json({
+    ok: true,
+    message: `Comando enviado: ${task}`,
+    command,
+  });
+});
+
+/**
+ * GET /api/robot/command
+ * Devuelve la lista de comandos enviados (simulada)
+ */
+router.get('/', (_, res) => {
+  res.json({ total: commands.length, commands });
 });
 
 export default router;

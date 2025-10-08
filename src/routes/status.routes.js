@@ -2,7 +2,6 @@
 // src/routes/status.routes.js
 // ===============================
 import { Router } from 'express';
-import { bus } from '../mqtt.js';
 
 const router = Router();
 
@@ -12,41 +11,33 @@ let lastState = { status: 'unknown', battery: 100, mode: 'manual' };
 // Logs simulados
 const logs = [];
 
-// Cuando llega un estado desde MQTT
-bus.on('state', (s) => {
-  lastState = { ...lastState, ...s };
+/**
+ * POST /api/status/update
+ * (Será usado por el BRIDGE)
+ * Actualiza el estado del robot y guarda un log
+ */
+router.post('/update', (req, res) => {
+  const newState = req.body;
+  lastState = { ...lastState, ...newState };
   logs.push({
     _id: logs.length + 1,
     timestamp: new Date(),
     level: 'robot_status',
-    robotStatus: s,
+    robotStatus: newState,
   });
+
+  res.json({ ok: true, message: 'Estado actualizado', state: lastState });
 });
 
 /**
  * GET /api/status
  * Devuelve el último estado conocido + últimos logs
  */
-router.get('/', (req, res) => {
+router.get('/', (_, res) => {
   res.json({
     robot: lastState,
-    logs: logs.slice(-10).reverse(), // últimos 10
+    logs: logs.slice(-10).reverse(),
   });
-});
-
-/**
- * GET /api/status/stream
- * Envío en tiempo real (SSE)
- */
-router.get('/stream', (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.flushHeaders();
-
-  const onState = (s) => res.write(`data: ${JSON.stringify(s)}\n\n`);
-  bus.on('state', onState);
-
-  req.on('close', () => bus.off('state', onState));
 });
 
 export default router;

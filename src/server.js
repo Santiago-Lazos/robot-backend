@@ -16,7 +16,7 @@ app.use(morgan('dev'));
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 
-// Rutas actualizadas según tareas asignadas
+// Rutas API
 app.use('/api/robot/command', commandsRoutes);
 app.use('/api/sensors/data', sensorsRoutes);
 app.use('/api/status', statusRoutes);

@@ -5,6 +5,8 @@ import { config } from '../config.js';
 import AWS from 'aws-sdk';
 import { Image } from '../models/Image.js';
 import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
 
 const router = Router();
 
@@ -50,7 +52,7 @@ router.post('/upload', upload.single('image'), async (req, res) => {
     let imageId;
     try {
       const image = await Image.create({
-        robotId: new mongoose.Types.ObjectId('652f8c5e9a3b2f4d6c1a8e9f'),
+        robotId: new mongoose.Types.ObjectId('652f8c5e9a3b2f4d6c1a8e9f'), // TODO ID Temporal
         url: publicUrl,
         type: 'other',
         description: 'Imagen subida desde /api/images/upload',
@@ -192,6 +194,101 @@ router.post('/ai-analyze', upload.single('image'), async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: err.message || String(err) });
+  }
+});
+
+const TEMP_DIR = path.join(process.cwd(), 'temp');
+if (!fs.existsSync(TEMP_DIR)) fs.mkdirSync(TEMP_DIR);
+
+// ANÁLISIS COMPLETO DE IMAGEN
+router.post('/analyze', upload.single('image'), async (req, res) => {
+  let tempFilePath = null;
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        message:
+          'Falta el archivo. Envíe la imagen en el campo image (multipart/form-data).'
+      });
+    }
+
+    // Guardar el archivo temporalmente
+    tempFilePath = req.file
+      ? path.join(TEMP_DIR, `${Date.now()}-${req.file.originalname}`)
+      : null;
+    await fs.promises.writeFile(tempFilePath, req.file.buffer);
+
+    const { buffer } = req.file;
+    let type = 'other';
+    let analysisResult = null;
+
+    // Intentar escanear QR
+    try {
+      const qrResult = await decodeQRFromBuffer(buffer);
+
+      if (qrResult?.text) {
+        type = 'qr';
+        analysisResult = qrResult.text;
+        console.log('✅ QR detectado:', analysisResult);
+      }
+    } catch (qrErr) {
+      console.warn('⚠️ No se detectó QR, continuando con análisis IA.');
+    }
+
+    // Si no hay QR, analizar con IA
+    if (!analysisResult) {
+      const aiResult = await analyzeImageWithAI(buffer);
+      type = aiResult.type;
+      analysisResult = aiResult.text;
+      console.log('🤖 Resultado IA:', analysisResult);
+    }
+
+    // Subir imagen a Cloudflare R2
+    const safeName = req.file.originalname
+      .replace(/\s+/g, '_')
+      .replace(/[^a-zA-Z0-9._-]/g, '');
+    const fileName = `${Date.now()}-${safeName}`;
+
+    try {
+      await s3
+        .putObject({
+          Bucket: config.r2BucketName,
+          Key: fileName,
+          Body: req.file.buffer,
+          ContentType: req.file.mimetype
+        })
+        .promise();
+    } catch (r2Err) {
+      console.error('❌ Error subiendo a R2:', r2Err);
+      throw new Error('Error subiendo imagen a Cloudflare R2');
+    }
+
+    const publicUrl = `${config.r2PublicUrl}/intercarreras/${encodeURIComponent(
+      fileName
+    )}`;
+
+    // Guardar en MongoDB
+    const image = await Image.create({
+      robotId: new mongoose.Types.ObjectId('652f8c5e9a3b2f4d6c1a8e9f'), // TODO ID Temporal
+      url: publicUrl,
+      type,
+      description: analysisResult,
+      timestamp: new Date()
+    });
+    console.log('✅ Imagen guardada en MongoDB:', image._id);
+
+    res.json({
+      result: analysisResult,
+      type,
+      url: publicUrl,
+      imageId: image._id
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message || String(err) });
+  } finally {
+    if (tempFilePath && fs.existsSync(tempFilePath)) {
+      fs.unlinkSync(tempFilePath);
+    }
   }
 });
 

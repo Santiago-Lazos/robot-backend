@@ -19,7 +19,7 @@
     "multer": "2.0.2",
     "openai": "6.1.0",
     "qrcode-reader": "1.0.4",
-    "zod": "^3.23.8"
+    "zod": "4.1.11"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

@@ -7,6 +7,7 @@ import { Image } from '../models/Image.js';
 import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
+import { analyzeImageWithAI } from '../utils/analyzeImageWithAI.js';
 
 const router = Router();
 

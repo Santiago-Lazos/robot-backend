@@ -2,52 +2,55 @@
 // src/routes/images.routes.js
 // ===============================
 import { Router } from 'express';
+import { Image } from '../models/Image.js';
 
 const router = Router();
 
-// Almacenamiento temporal en memoria
-const images = [];
-
 /**
  * POST /api/robot/image
- * Recibe metadatos de una imagen capturada por el robot.
- * Espera que el Bridge ya haya subido la imagen (por ejemplo, a R2)
- * y nos envíe la URL y la clasificación.
+ * Guarda los metadatos de una imagen en MongoDB.
+ * La imagen ya fue subida a Cloudflare por otro servicio (Bridge o IA).
  */
-router.post('/', (req, res) => {
-  const { robotId, url, type, description, timestamp } = req.body;
+router.post('/', async (req, res) => {
+  try {
+    const { robotId, url, type, description, timestamp } = req.body;
 
-  // Validaciones mínimas
-  if (!robotId) return res.status(400).json({ error: 'robotId es requerido' });
-  if (!url) return res.status(400).json({ error: 'url es requerida' });
-  if (!['qr', 'sign', 'other'].includes(type || 'other')) {
-    return res.status(400).json({ error: 'type debe ser "qr" | "sign" | "other"' });
+    // Validaciones básicas
+    if (!robotId) return res.status(400).json({ error: 'robotId es requerido' });
+    if (!url) return res.status(400).json({ error: 'url es requerida' });
+
+    // Crear y guardar en MongoDB
+    const image = await Image.create({
+      robotId,
+      url,
+      type: type || 'other',
+      description: description || '',
+      timestamp: timestamp ? new Date(timestamp) : new Date(),
+    });
+
+    res.json({
+      ok: true,
+      message: '✅ Imagen registrada en MongoDB',
+      image,
+    });
+  } catch (err) {
+    console.error('❌ Error al guardar imagen:', err.message);
+    res.status(500).json({ error: 'Error interno al guardar la imagen.' });
   }
-
-  const img = {
-    _id: images.length + 1,
-    robotId,
-    url,
-    type,                          // "qr" | "sign" | "other"
-    description: description || '',// e.g. contenido del QR o "flecha izquierda"
-    timestamp: timestamp ? new Date(timestamp) : new Date(),
-  };
-
-  images.push(img);
-
-  res.json({
-    ok: true,
-    message: 'Imagen registrada',
-    image: img,
-  });
 });
 
 /**
  * GET /api/robot/image
- * Lista de imágenes recibidas (en memoria, para verificación).
+ * Obtiene todas las imágenes almacenadas en MongoDB.
  */
-router.get('/', (_, res) => {
-  res.json({ total: images.length, images });
+router.get('/', async (_, res) => {
+  try {
+    const images = await Image.find().sort({ timestamp: -1 });
+    res.json({ total: images.length, images });
+  } catch (err) {
+    console.error('❌ Error al obtener imágenes:', err.message);
+    res.status(500).json({ error: 'Error interno al obtener imágenes.' });
+  }
 });
 
 export default router;

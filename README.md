@@ -1,9 +1,10 @@
-# 🤖 Robot Backend – Intercarreras 2025
+# 🤖 Backend – Inter-Carreras 
 
-API desarrollada en **Node.js + Express** para el proyecto interdisciplinario  
-**Robot Autónomo Inteligente** del trabajo **Intercarreras 2025**.
+API desarrollada en **Node.js + Express** 
 
-Esta API actúa como el **núcleo de comunicación** entre el *Bridge* (microservicio intermedio)  
+**Prototipo de Montacargas Autónomo** del trabajo **Intercarreras 2025**.
+
+Esta API actúa como el **núcleo de comunicación** entre el Bridge (microservicio intermedio)  
 y el resto de los módulos del sistema (control remoto, panel administrativo, etc).
 
 ---
@@ -14,7 +15,7 @@ Centralizar el flujo de datos entre los servicios del robot:
 
 - 🔁 Recibir datos del **Bridge** (sensores, estado e imágenes).
 - 🛰️ Enviar **órdenes de movimiento** y tareas al robot.
-- 🧠 Servir como base para futuras integraciones con **MongoDB Atlas** y otros microservicios.
+- 🧠 Servir como base para integraciones con **MongoDB Atlas** y **Cloudflare R2**.
 
 ---
 
@@ -28,107 +29,134 @@ robot-backend/
 │ │ ├─ commands.routes.js → /api/robot/command
 │ │ ├─ sensors.routes.js → /api/sensors/data
 │ │ ├─ status.routes.js → /api/status
-│ │ └─ images.routes.js → /api/robot/image
-│ ├─ config.js
-│ └─ server.js
-├─ .env.example
-├─ package.json
-└─ README.md
-
+│ │ ├─ images.routes.js → /api/robot/image
+│ │ └─ webhook.routes.js → /api/webhook
+│ ├─ models/
+│ │ └─ Image.js → Esquema de imágenes en MongoDB
+│ ├─ config.js → Configuración y variables de entorno
+│ └─ server.js → Servidor principal Express
+├─ .env.example → Variables de entorno de ejemplo
+├─ package.json → Dependencias del proyecto
+└─ README.md → Documentación técnica
 
 ---
 
 ## ⚙️ Instalación y Ejecución
 
-### Clonar el repositorio
+### 1️⃣ Clonar el repositorio
 
+```bash
 git clone https://github.com/Santiago-Lazos/robot-backend.git
 cd robot-backend
+```
 
-### Instalar dependencias
+### 2️⃣ Instalar
 
+```bash
 npm install
+```
 
-### Crear el archivo .env
+### 3️⃣ Crear el archivo .env
+
+Ejemplo de contenido:
 
 PORT=3000
-BRIDGE_URL=http://localhost:4000
-MONGO_URI=
+MQTT_BROKER_URL=mqtt://broker.hivemq.com:1883
+MQTT_TOPIC_CONTROL=equipo2/robot/control
+MQTT_TOPIC_STATE=equipo2/robot/estado
+MONGO_URI=mongodb+srv://intercarreras:***@cluster0.7ttd6fx.mongodb.net/intercarreras
 
-### Iniciar el servidor
+### 4️⃣ Iniciar el servidor
 
+```bash
 npm run dev
+```
 
-### Endpoints Principales
+### La API quedará disponible en:
 
-🟢 GET /health
+🔗 http://localhost:3000
 
-Verifica el estado del servidor.
+🌐 Endpoints Principales (API REST)
 
-🟢 POST /api/robot/command
+### 🚀 Comandos
 
-Envía órdenes al robot (a través del Bridge).
+POST	/api/robot/command ---> Envía un comando al robot a través del Bridge.
 
 Body ejemplo:
 
+```json
 {
   "robotId": "robot-demo",
   "source": "web_rc",
   "task": "move_forward",
   "value": 10
 }
+```
 
-🟢 GET /api/robot/command 
+GET	/api/robot/command ---> Devuelve el historial de comandos enviados.
 
-Devuelve el historial de comandos enviados.
+### 📡 Sensores
 
-🟢 POST /api/sensors/data
+POST	/api/sensors/data	---> Recibe lecturas del sensor ultrasónico o similares.
 
-Recibe lecturas de sensores (ultrasónico, cámara, etc).
-Por ahora guarda la información en memoria.
+### ⚙️ Estado del Robot
 
-🟢 POST /api/status/update
+GET	/api/status	---> Devuelve el último estado conocido del robot.
+POST	/api/status/update ---> Actualiza el estado (para pruebas locales).
+GET	/api/status/stream ---> Envío en tiempo real (SSE).
 
-Actualiza el estado del robot (modo, batería, etc).
+### 🖼️ Imágenes
 
-🟢 GET /api/status
+POST	/api/robot/image ---> Registra información de una imagen en MongoDB.
+GET	/api/robot/image ---> Lista todas las imágenes registradas en la BD.
 
-Devuelve el último estado y logs recientes.
+Body ejemplo (POST):
 
-🟢 GET /api/status/stream
-
-Envío en tiempo real (SSE).
-
-🟢 POST /api/robot/image
-
-Recibe metadatos de una imagen capturada por el robot.
-
-Body ejemplo:
-
+```json
 {
   "robotId": "robot-demo",
-  "url": "https://r2.example.com/bucket/img-123.jpg",
+  "url": "https://pub-8690292748b74d44af49372934e22b66.r2.dev/example.jpg",
   "type": "sign",
   "description": "flecha izquierda"
 }
+```
 
-🟢 GET /api/robot/image → Lista las imágenes registradas.
+### 🌐 Webhook
 
-🧩 Variables de Entorno
+POST	/api/webhook	---> Recibe datos desde el Bridge (por ejemplo, imágenes o lecturas).
 
-Archivo: .env.example
+### 🧠 Esquema de Base de Datos
 
-# Puerto HTTP del servidor
-PORT=3000
+Modelo Image.js
 
-# URL del microservicio Bridge (Fabri)
-BRIDGE_URL=http://localhost:4000
+```json
+{
+  robotId: String,
+  url: String,
+  type: String,        
+  description: String,  
+  timestamp: Date
+}
+```
 
-# URL de conexión a MongoDB Atlas (a futuro)
-MONGO_URI=
+Las imágenes se almacenan en Cloudflare R2, y la URL pública se guarda en MongoDB Atlas.
+No es necesaria conexión directa del backend con Cloudflare, ya que los frontends leen las URLs desde la BD.
 
+### ☁️ Despliegue
 
+### 🔧 Configuración en la nube
 
+Puede implementarse en Render, Railway, Vercel u otras plataformas.
+Solo es necesario configurar las mismas variables de entorno del archivo .env.
 
+### 🖥️ Dashboard y Control Remoto
 
+Las interfaces web se comunican con esta API a través de los endpoints REST:
 
+El control remoto envía acciones mediante /api/robot/command.
+
+El panel de administración consulta /api/robot/image y /api/status para mostrar el estado e imágenes registradas.
+
+La API funciona como puente entre el microservicio Bridge (MQTT) y los frontends web, garantizando una comunicación fluida y centralizada.
+
+---

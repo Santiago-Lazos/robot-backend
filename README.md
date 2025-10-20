@@ -82,7 +82,7 @@ npm run dev
 
 POST	/api/robot/command ---> Envía un comando al robot a través del Bridge.
 
-Body ejemplo:
+Body de ejemplo:
 
 ```json
 {
@@ -110,7 +110,7 @@ GET	/api/status/stream ---> Envío en tiempo real (SSE).
 POST	/api/robot/image ---> Registra información de una imagen en MongoDB.
 GET	/api/robot/image ---> Lista todas las imágenes registradas en la BD.
 
-Body ejemplo (POST):
+Body de ejemplo (POST):
 
 ```json
 {

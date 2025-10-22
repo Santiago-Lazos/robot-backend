@@ -7,6 +7,7 @@ import commandsRoutes from './routes/commands.routes.js';
 import statusRoutes from './routes/status.routes.js';
 import imagesRoutes from './routes/images.routes.js';
 import webhookRoutes from './routes/webhook.routes.js';
+import streamRoutes from './routes/stream.routes.js';
 
 const app = express();
 app.use(cors());
@@ -20,6 +21,7 @@ app.use('/api/commands', commandsRoutes);
 app.use('/api/status', statusRoutes);
 app.use('/api/images', imagesRoutes);
 app.use('/api/webhook', webhookRoutes);
+app.use('/api/stream', streamRoutes);
 
 async function start() {
   if (config.mongoUri) {

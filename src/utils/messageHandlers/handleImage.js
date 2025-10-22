@@ -6,6 +6,7 @@ import { config } from '../../config.js';
 import { Image } from '../../models/Image.js';
 import { decodeQRFromBuffer } from '../../utils/decodeQRFromBuffer.js';
 import { analyzeImageWithAI } from '../../utils/analyzeImageWithAI.js';
+import { notifyClients } from '../../routes/stream.routes.js';
 
 const TEMP_DIR = path.join(process.cwd(), 'temp');
 
@@ -90,6 +91,14 @@ export const handleImage = async (body) => {
       timestamp: new Date()
     });
     console.log('✅ Imagen guardada en MongoDB:', image._id);
+
+    // 🔔 Notificar a los clientes SSE
+    notifyClients('new_image', {
+      id: image._id,
+      timestamp: image.timestamp
+    });
+
+    // TODO: Enviar instrucciones al robot obtenidas en la imagen (si las hay)
 
     return {
       result: analysisResult,

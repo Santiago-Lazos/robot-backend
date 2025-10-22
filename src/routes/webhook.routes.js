@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { handleImage } from '../utils/messageHandlers/handleImage';
+import { handleUnknown } from '../utils/messageHandlers/handleUnknown';
 
 const router = Router();
 

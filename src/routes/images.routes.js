@@ -278,6 +278,9 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
     });
     console.log('✅ Imagen guardada en MongoDB:', image._id);
 
+    // TODO: Notificar al frontend con SSE
+    // TODO: Enviar instrucciones al robot obtenidas en la imagen (si las hay)
+
     res.json({
       result: analysisResult,
       type,

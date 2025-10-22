@@ -4,8 +4,8 @@ import mongoose from 'mongoose';
 import AWS from 'aws-sdk';
 import { config } from '../../config.js';
 import { Image } from '../../models/Image.js';
-import { decodeQRFromBuffer } from '../utils/decodeQRFromBuffer.js';
-import { analyzeImageWithAI } from '../utils/analyzeImageWithAI.js';
+import { decodeQRFromBuffer } from '../../utils/decodeQRFromBuffer.js';
+import { analyzeImageWithAI } from '../../utils/analyzeImageWithAI.js';
 
 const TEMP_DIR = path.join(process.cwd(), 'temp');
 

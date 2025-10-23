@@ -1,6 +1,3 @@
-// ===============================
-// src/routes/sensors.routes.js
-// ===============================
 import { Router } from 'express';
 
 const router = Router();

@@ -1,6 +1,3 @@
-// ===============================
-// src/routes/images.routes.js
-// ===============================
 import { Router } from 'express';
 import { Image } from '../models/Image.js';
 
@@ -9,7 +6,7 @@ const router = Router();
 /**
  * POST /api/robot/image
  * Guarda los metadatos de una imagen en MongoDB.
- * La imagen ya fue subida a Cloudflare por otro servicio (Bridge o IA).
+ * La imagen ya fue subida a Cloudflare por otro servicio (Bridge).
  */
 router.post('/', async (req, res) => {
   try {

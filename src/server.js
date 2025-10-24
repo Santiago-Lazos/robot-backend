@@ -21,6 +21,11 @@ app.use(morgan('dev'));
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 
+// Ruta base opcional
+app.get("/", (req, res) => {
+  res.send("🤖 Robot Backend activo y funcionando correctamente 🚀");
+});
+
 // Conexion a MongoDB Atlas
 app.use('/api/images', imagesRoutes);
 app.use('/api/webhook', webhookRoutes);

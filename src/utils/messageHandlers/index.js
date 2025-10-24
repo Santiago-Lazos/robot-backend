@@ -7,4 +7,3 @@ export { handleObstacle } from "./handleObstacle.js";
 export { handleUnknown } from "./handleUnknown.js";
 
 
-

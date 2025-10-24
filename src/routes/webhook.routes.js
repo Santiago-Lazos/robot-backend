@@ -56,7 +56,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-import { Router } from "express";
 import {
   handleAck,
   handleConnected,

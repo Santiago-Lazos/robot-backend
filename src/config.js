@@ -12,5 +12,6 @@ export const config = {
   r2BucketName: process.env.R2_BUCKET_NAME,
   r2TokenValue: process.env.R2_TOKEN_VALUE,
   r2CdnUrl: process.env.R2_CDN_URL,
-  r2PublicUrl: process.env.R2_PUBLIC_URL
+  r2PublicUrl: process.env.R2_PUBLIC_URL,
+  bridgeUrl: process.env.BRIDGE_URL
 };

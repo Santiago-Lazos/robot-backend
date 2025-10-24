@@ -32,8 +32,7 @@ export const sendCommand = async (robotId, command) => {
     const messageContent = {
       robotId,
       commandType: command.type,
-      content: command.content,
-      timestamp: new Date().toISOString()
+      content: command.content
     };
 
     console.log('🚀 Enviando comando al robot:', messageContent);

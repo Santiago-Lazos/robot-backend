@@ -98,6 +98,7 @@ export const handleImage = async (body) => {
 
     // 6. Notificar a los clientes SSE
     notifyClients('new_image', {
+      robotId,
       id: image._id,
       timestamp: image.timestamp
     });

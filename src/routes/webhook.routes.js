@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { handleImage } from '../utils/messageHandlers/handleImage';
 import { handleUnknown } from '../utils/messageHandlers/handleUnknown';
+import { handleObstacle } from '../utils/messageHandlers/handleObstacle';
 
 const router = Router();
 
@@ -31,9 +32,9 @@ router.post('/', async (req, res) => {
       case 'image':
         result = await handleImage(req.body);
         break;
-      /* case 'obstacle':
-        result = handleObstacle(req.body);
-        break; */
+      case 'obstacle':
+        result = await handleObstacle(req.body);
+        break;
       /* case 'connected':
         result = handleConnected(req.body);
         break; */

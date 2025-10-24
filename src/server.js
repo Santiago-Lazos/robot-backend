@@ -9,9 +9,6 @@ import sensorsRoutes from './routes/sensors.routes.js';
 import imagesRoutes from './routes/images.routes.js';
 import webhookRoutes from './routes/webhook.routes.js';
 import streamRoutes from "./routes/stream.routes.js";
-import imagesRoutes from './routes/images.routes.js';
-import webhookRoutes from './routes/webhook.routes.js';
-import streamRoutes from './routes/stream.routes.js';
 
 const app = express();
 

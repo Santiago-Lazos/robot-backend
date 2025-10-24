@@ -7,9 +7,12 @@ import { Image } from '../../models/Image.js';
 import { decodeQRFromBuffer } from '../../utils/decodeQRFromBuffer.js';
 import { analyzeImageWithAI } from '../../utils/analyzeImageWithAI.js';
 import { notifyClients } from '../../routes/stream.routes.js';
+import { sendCommand } from '../sendCommand.js';
+import { handleSign } from '../handleSign.js';
 
 const TEMP_DIR = path.join(process.cwd(), 'temp');
 
+// Inicializar cliente S3 para Cloudflare R2
 const s3 = new AWS.S3({
   endpoint: config.r2CdnUrl,
   accessKeyId: config.r2AccessKeyId,
@@ -19,50 +22,50 @@ const s3 = new AWS.S3({
 });
 
 export const handleImage = async (body) => {
-  let { base64 } = body;
+  const { robotId, content } = body;
+  let { base64 } = content;
 
   let tempFilePath = null;
 
   try {
     if (!base64) {
-      console.error('Falta base64 en el body JSON.');
+      throw new Error('Falta base64 en el body JSON.');
     }
 
-    // Remover prefijo `data` de la base64 si está presente
+    // Remover prefijo `data:` de la base64 si está presente
     base64 = base64.replace(/^data:\w+\/[-+.\w]+;base64,/, '');
 
-    // Guardar el archivo temporalmente
-    tempFilePath = path.join(TEMP_DIR, `image-${Date.now()}`);
-
+    // 1. Guardar el archivo temporalmente
+    tempFilePath = path.join(TEMP_DIR, `image-${Date.now()}.jpg`);
     const buffer = Buffer.from(base64, 'base64');
     await fs.promises.writeFile(tempFilePath, buffer);
 
     let type = 'other';
     let analysisResult = null;
 
-    // Intentar escanear QR
+    // 2.Intentar escanear QR
     try {
       const qrResult = await decodeQRFromBuffer(buffer);
 
       if (qrResult?.text) {
         type = 'qr';
-        analysisResult = qrResult.text;
+        analysisResult = qrResult.text.trim();
         console.log('✅ QR detectado:', analysisResult);
       }
     } catch (qrErr) {
       console.warn('⚠️ No se detectó QR, continuando con análisis IA.');
     }
 
-    // Si no hay QR, analizar con IA
+    // 3. Si no hay QR, analizar con IA
     if (!analysisResult) {
       const aiResult = await analyzeImageWithAI(buffer);
-      type = aiResult.type;
-      analysisResult = aiResult.text;
+      type = aiResult.type || 'other';
+      analysisResult = aiResult.text?.trim() || null;
       console.log('🤖 Resultado IA:', analysisResult);
     }
 
-    // Subir imagen a Cloudflare R2
-    const fileName = `${type}-${Date.now()}`;
+    // 4. Subir imagen a Cloudflare R2
+    const fileName = `${type}-${Date.now()}.jpg`;
 
     try {
       await s3
@@ -82,23 +85,49 @@ export const handleImage = async (body) => {
       fileName
     )}`;
 
-    // Guardar en MongoDB
+    // 5. Guardar en MongoDB
     const image = await Image.create({
-      robotId: new mongoose.Types.ObjectId('652f8c5e9a3b2f4d6c1a8e9f'), // TODO ID Temporal
+      robotId: new mongoose.Types.ObjectId(robotId),
       url: publicUrl,
       type,
       description: analysisResult,
       timestamp: new Date()
     });
+
     console.log('✅ Imagen guardada en MongoDB:', image._id);
 
-    // 🔔 Notificar a los clientes SSE
+    // 6. Notificar a los clientes SSE
     notifyClients('new_image', {
       id: image._id,
       timestamp: image.timestamp
     });
 
-    // TODO: Enviar instrucciones al robot obtenidas en la imagen (si las hay)
+    // 7. Enviar instrucciones al robot obtenidas en la imagen (si las hay)
+    if (type === 'qr' && analysisResult) {
+      try {
+        const parsed = JSON.parse(analysisResult);
+
+        const isValidCommand =
+          parsed &&
+          (Array.isArray(parsed) ||
+            (typeof parsed === 'object' && parsed.type && parsed.content));
+
+        if (isValidCommand) {
+          console.log('📡 Enviando comando(s) al robot:', parsed);
+          await sendCommand(robotId, parsed);
+        } else {
+          console.warn('⚠️ El QR no contiene un comando válido:', parsed);
+        }
+      } catch (err) {
+        console.warn('⚠️ El QR no es JSON válido:', analysisResult);
+      }
+    } else if (type === 'sign' && analysisResult) {
+      const signData = handleSign(analysisResult);
+      if (signData) {
+        console.log('📡 Enviando comando (señal) al robot:', signData);
+        await sendCommand(robotId, signData);
+      }
+    }
 
     return {
       result: analysisResult,

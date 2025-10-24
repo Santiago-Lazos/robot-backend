@@ -8,10 +8,18 @@ router.post('/', async (req, res) => {
   try {
     res.sendStatus(200);
 
-    const { messageType } = req.body;
+    const { messageType, robotId } = req.body;
 
     if (!messageType) {
-      return console.error('Falta messageType en el body JSON.');
+      console.error('Falta messageType en el body JSON.');
+      console.log('Body:', req.body);
+      return;
+    }
+
+    if (!robotId) {
+      console.error('Falta robotId en el body JSON.');
+      console.log('Body:', req.body);
+      return;
     }
 
     let result = null;

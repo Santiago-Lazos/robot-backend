@@ -5,16 +5,23 @@ import mongoose from 'mongoose';
 import { config } from './config.js';
 import commandsRoutes from './routes/commands.routes.js';
 import statusRoutes from './routes/status.routes.js';
+import imagesRoutes from './routes/images.routes.js';
+import webhookRoutes from './routes/webhook.routes.js';
+import streamRoutes from './routes/stream.routes.js';
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('dev'));
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 
 app.use('/api/commands', commandsRoutes);
 app.use('/api/status', statusRoutes);
+app.use('/api/images', imagesRoutes);
+app.use('/api/webhook', webhookRoutes);
+app.use('/api/stream', streamRoutes);
 
 async function start() {
   if (config.mongoUri) {

@@ -1,81 +1,29 @@
-import { Router } from 'express';
-import { handleImage } from '../utils/messageHandlers/handleImage';
-import { handleUnknown } from '../utils/messageHandlers/handleUnknown';
-import { handleObstacle } from '../utils/messageHandlers/handleObstacle';
-
-const router = Router();
-
-router.post('/', async (req, res) => {
-  try {
-    res.sendStatus(200);
-
-    const { messageType, robotId } = req.body;
-
-    if (!messageType) {
-      console.error('Falta messageType en el body JSON.');
-      console.log('Body:', req.body);
-      return;
-    }
-
-    if (!robotId) {
-      console.error('Falta robotId en el body JSON.');
-      console.log('Body:', req.body);
-      return;
-    }
-
-    let result = null;
-
-    switch (messageType) {
-      /* case 'ack':
-        result = handleAck(req.body);
-        break; */
-      case 'image':
-        result = await handleImage(req.body);
-        break;
-      case 'obstacle':
-        result = await handleObstacle(req.body);
-        break;
-      /* case 'connected':
-        result = handleConnected(req.body);
-        break; */
-      /* case 'disconnected':
-        result = handleDisconnected(req.body);
-        break; */
-      /* case 'error':
-        result = handleError(req.body);
-        break; */
-      default:
-        result = handleUnknown(req.body);
-        break;
-    }
-
-    console.log('RESULTADO DE WEBHOOK:', result);
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(500);
-  }
-});
-
+import { Router } from "express";
 import {
   handleAck,
   handleConnected,
   handleDisconnected,
   handleError,
   handleUnknown,
+  handleImage,
+  handleObstacle,
 } from "../utils/messageHandlers/index.js";
+
+const router = Router();
 
 /**
  * POST /api/webhook
  * Recibe mensajes del Bridge con distintos tipos de eventos del robot.
  */
 router.post("/", async (req, res) => {
-  const { messageType, content } = req.body;
+  const { messageType, content, robotId } = req.body;
 
   if (!messageType) {
     return res.status(400).json({ error: "Falta el campo 'messageType'." });
   }
 
   console.log(`📩 Mensaje recibido desde Bridge: ${messageType}`);
+  if (robotId) console.log(`🤖 Robot ID: ${robotId}`);
 
   try {
     switch (messageType) {
@@ -84,15 +32,23 @@ router.post("/", async (req, res) => {
         break;
 
       case "connected":
-        await handleConnected();
+        await handleConnected(robotId);
         break;
 
       case "disconnected":
-        await handleDisconnected();
+        await handleDisconnected(robotId);
         break;
 
       case "error":
         await handleError(content);
+        break;
+
+      case "image":
+        await handleImage(req.body);
+        break;
+
+      case "obstacle":
+        await handleObstacle(req.body);
         break;
 
       default:

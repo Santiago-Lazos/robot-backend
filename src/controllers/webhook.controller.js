@@ -3,7 +3,7 @@
 // Aca se modulariza la lógica para mantener el código más limpio
 // y facilitar la integración futura con MongoDB y Cloudflare R2.
 
-// 🖼️ Procesar imagen
+// Procesar imagen
 export async function handleImage(data, r2, bucketName) {
   try {
     console.log("📸 Procesando imagen recibida...");
@@ -46,7 +46,7 @@ export async function handleImage(data, r2, bucketName) {
   }
 }
 
-// 📊 Procesar estado del robot
+// Procesar estado del robot
 export async function handleStatus(data) {
   try {
     console.log("📊 Estado recibido:", data);
@@ -58,7 +58,7 @@ export async function handleStatus(data) {
   }
 }
 
-// 📡 Procesar datos de sensores
+// Procesar datos de sensores
 export async function handleSensor(data) {
   try {
     console.log("📡 Sensor recibido:", data);

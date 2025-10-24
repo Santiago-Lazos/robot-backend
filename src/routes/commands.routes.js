@@ -1,8 +1,7 @@
 import { Router } from "express";
-import axios from "axios";
 import mongoose from "mongoose";
 import { config } from "../config.js";
-import { commandSchema } from "../libs/validator.js"; // Validación con Zod
+import { sendCommand } from "../utils/sendCommand.js"; 
 
 const router = Router();
 
@@ -11,20 +10,23 @@ const commands = [];
 
 /**
  * POST /api/robot/command
- * Envía un comando al robot, reenviándolo al microservicio BRIDGE
+ * Envía un comando al robot, reenviándolo al Bridge (HTTP) o simulando localmente.
  */
 router.post("/", async (req, res) => {
   try {
-    // Validar el comando usando Zod
-    const parsed = commandSchema.parse({ command: req.body.task });
-
     const { robotId, source, task, value, userId } = req.body;
 
+    // Validación mínima
+    if (!task || typeof task !== "string") {
+      return res.status(400).json({ error: 'El campo "task" es obligatorio y debe ser texto.' });
+    }
+
+    // Crear objeto comando
     const command = {
       _id: new mongoose.Types.ObjectId(),
       robotId: robotId || "robot-demo",
       source: source || "web_rc",
-      task: parsed.command, // comando validado
+      task,
       value: value || null,
       timestamp: new Date(),
       status: "pending",
@@ -34,18 +36,24 @@ router.post("/", async (req, res) => {
     // Guardar en memoria (simulado)
     commands.push(command);
 
-    // Intentar reenviar al Bridge si está configurado
+    // ===========================
+    // 📡 NUEVO: Usar sendCommand()
+    // ===========================
     if (config.bridgeUrl) {
       try {
-        await axios.post(`${config.bridgeUrl}/command`, command);
-        console.log(`✅ Comando reenviado al Bridge: ${task}`);
+        await sendCommand(command.robotId, {
+          type: "move", // o el tipo que corresponda según tu lógica
+          content: { direction: command.task, value: command.value },
+        });
+
+        console.log(`✅ Comando enviado al Bridge: ${task}`);
         command.status = "sent";
       } catch (bridgeErr) {
         console.warn("⚠️ Error al enviar al Bridge:", bridgeErr.message);
         command.status = "failed";
       }
     } else {
-      console.log("⚠️ BRIDGE_URL no configurada. Solo simulado localmente.");
+      console.log("⚠️ BRIDGE_URL no configurada. Simulación local.");
     }
 
     res.json({
@@ -55,16 +63,6 @@ router.post("/", async (req, res) => {
     });
   } catch (err) {
     console.error("❌ Error en /api/robot/command:", err);
-
-    if (err.errors) {
-      // Error de validación de Zod
-      return res.status(400).json({
-        ok: false,
-        error: "Comando inválido",
-        details: err.errors.map((e) => e.message),
-      });
-    }
-
     res.status(500).json({ error: "Error interno al procesar el comando." });
   }
 });
@@ -76,7 +74,7 @@ router.post("/", async (req, res) => {
 router.get("/", (_, res) => {
   res.json({
     total: commands.length,
-    commands: commands.slice(-20).reverse(),
+    commands: commands.slice(-20).reverse(), // últimos 20 comandos
   });
 });
 

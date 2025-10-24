@@ -5,5 +5,6 @@ export const config = {
   mqttUrl: process.env.MQTT_BROKER_URL,
   mqttTopicControl: process.env.MQTT_TOPIC_CONTROL || 'equipo2/robot/control',
   mqttTopicState: process.env.MQTT_TOPIC_STATE || 'equipo2/robot/estado',
-  mongoUri: process.env.MONGO_URI
+  mongoUri: process.env.MONGO_URI,
+  bridgeUrl: process.env.BRIDGE_URL
 };

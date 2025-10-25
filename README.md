@@ -83,6 +83,7 @@ MQTT_BROKER_URL=mqtt://broker.hivemq.com:1883
 MQTT_TOPIC_CONTROL=equipo2/robot/control
 MQTT_TOPIC_STATE=equipo2/robot/estado
 MONGO_URI=mongodb+srv://intercarreras:***@cluster0.7ttd6fx.mongodb.net/intercarreras
+BRIDGE_URL=http://localhost:4000
 
 ### 4️⃣ Iniciar el servidor
 
@@ -95,6 +96,10 @@ npm run dev
 ### La API quedará disponible en:
 
 🔗 http://localhost:3000
+
+### 🌐 API desplegada en Render
+
+**URL:** [https://robot-backend-6o4d.onrender.com](https://robot-backend-6o4d.onrender.com)
 
 ### 🌐 Endpoints Principales (API REST)
 

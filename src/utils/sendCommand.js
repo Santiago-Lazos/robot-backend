@@ -51,4 +51,5 @@ export const sendCommand = async (robotId, command) => {
     console.error('❌ Error enviando comando al robot:', error.message);
     throw error;
   }
+
 };

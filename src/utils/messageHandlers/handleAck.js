@@ -21,20 +21,18 @@ export function handleAck(robotId, content) {
     return { message: 'Faltan type, action o state en el body JSON.' };
   }
 
-  notifyClients('ack_received', {
+  const data = {
     robotId,
     type,
     action,
     state,
     timestamp: new Date()
-  });
+  };
+
+  notifyClients('ack_received', data);
 
   return {
     message: 'ACK recibido y notificado por SSE',
-    robotId,
-    type,
-    action,
-    state,
-    timestamp: new Date()
+    ...data
   };
 }

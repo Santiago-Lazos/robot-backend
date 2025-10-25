@@ -8,7 +8,7 @@ import { notifyClients } from '../../routes/stream.routes.js';
  *   message: "Fallo de inicialización"
  * }
  */
-export function handleError(robotId, content) {
+export async function handleError(robotId, content) {
   if (!content) {
     return { message: 'Falta content en el body JSON.' };
   }

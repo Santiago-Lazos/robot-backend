@@ -50,7 +50,7 @@ router.post('/', async (req, res) => {
         break;
 
       case 'error':
-        result = handleError(robotId, content);
+        result = await handleError(robotId, content);
         break;
 
       case 'image':

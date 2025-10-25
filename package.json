@@ -8,21 +8,21 @@
     "start": "node src/server.js"
   },
   "dependencies": {
-    "aws-sdk": "^2.1692.0",
-    "axios": "^1.12.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "aws-sdk": "2.1692.0",
+    "axios": "1.12.2",
+    "cors": "2.8.5",
+    "dotenv": "16.4.5",
+    "express": "4.21.2",
     "jimp": "1.6.0",
-    "mongoose": "^8.5.0",
-    "morgan": "^1.10.0",
-    "mqtt": "^5.3.5",
+    "mongoose": "8.19.1",
+    "morgan": "1.10.0",
+    "mqtt": "5.3.5",
     "multer": "2.0.2",
     "openai": "6.1.0",
     "qrcode-reader": "1.0.4",
     "zod": "4.1.11"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "nodemon": "3.1.0"
   }
 }

@@ -1,6 +1,4 @@
-import { notifyClients } from "../../routes/stream.routes.js";
-import mongoose from "mongoose";
-import { config } from "../../config.js";
+import { notifyClients } from '../../routes/stream.routes.js';
 
 /**
  * Maneja los mensajes de error provenientes del robot.
@@ -10,14 +8,23 @@ import { config } from "../../config.js";
  *   message: "Fallo de inicialización"
  * }
  */
-export function handleError(content) {
-  console.error("🚨 Error recibido del robot:", content);
+export function handleError(robotId, content) {
+  if (!content) {
+    return { message: 'Falta content en el body JSON.' };
+  }
+
+  const { type, message } = content;
+
+  if (!type || !message) {
+    return { message: 'Faltan type o message en el body JSON.' };
+  }
 
   // Notificar al panel de administración (SSE)
-  notifyClients("robot_error", {
-    type: content.type,
-    message: content.message,
-    timestamp: new Date(),
+  notifyClients('robot_error', {
+    robotId,
+    type,
+    message,
+    timestamp: new Date()
   });
 
   // (Opcional) Guardar en logs de MongoDB
@@ -29,4 +36,12 @@ export function handleError(content) {
   //   }));
   //   Log.create({ ...content, timestamp: new Date() });
   // }
+
+  return {
+    message: 'Error recibido y notificado por SSE',
+    robotId,
+    type,
+    message,
+    timestamp: new Date()
+  };
 }

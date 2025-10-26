@@ -106,8 +106,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// TODO Elegir uno de los 3 métodos de escaneo de QR (multipart/form-data, URL, base64)
-
 // ESCANEAR QR: desde imagen subida por multipart/form-data
 router.post('/scan-qr', upload.single('image'), async (req, res) => {
   try {
@@ -278,9 +276,6 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
     });
     console.log('✅ Imagen guardada en MongoDB:', image._id);
 
-    // TODO: Notificar al frontend con SSE
-    // TODO: Enviar instrucciones al robot obtenidas en la imagen (si las hay)
-
     res.json({
       result: analysisResult,
       type,
@@ -295,7 +290,6 @@ router.post('/analyze', upload.single('image'), async (req, res) => {
     }
   }
 });
-
 
 /**
  * POST /api/robot/image

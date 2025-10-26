@@ -1,5 +1,6 @@
-import { notifyClients } from '../../routes/stream.routes';
-import { handleImage } from './handleImage';
+import { notifyClients } from '../../routes/stream.routes.js';
+import { handleImage } from './handleImage.js';
+
 
 export const handleObstacle = async (body) => {
   try {

@@ -37,12 +37,12 @@ router.post("/", async (req, res) => {
     commands.push(command);
 
     // ===========================
-    // 📡 NUEVO: Usar sendCommand()
+    // NUEVO: Usar sendCommand()
     // ===========================
     if (config.bridgeUrl) {
       try {
         await sendCommand(command.robotId, {
-          type: "move", // o el tipo que corresponda según tu lógica
+          type: "move", 
           content: { direction: command.task, value: command.value },
         });
 

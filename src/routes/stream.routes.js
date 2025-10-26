@@ -31,6 +31,7 @@ export const notifyClients = (eventName, payload) => {
     res.write(`event: ${eventName}\n`);
     res.write(`data: ${JSON.stringify(payload)}\n\n`);
   });
+  console.log(`📢 Evento SSE enviado: ${eventName}`);
 };
 
 // Abrir conexión SSE
@@ -48,14 +49,6 @@ router.get("/", (req, res) => {
     clients = clients.filter((client) => client !== res);
   });
 });
-
-export function notifyClients(event, data) {
-  clients.forEach((client) => {
-    client.write(`event: ${event}\n`);
-    client.write(`data: ${JSON.stringify(data)}\n\n`);
-  });
-  console.log(`📢 Evento SSE enviado: ${event}`);
-}
 
 console.log("🟢 Esperando conexiones SSE...");
 

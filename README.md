@@ -242,8 +242,4 @@ El endpoint del stream es: `/api/stream`
 | `ack_received`       | Confirmación de que el robot recibió o completó una acción.  | `{ type, action, state, timestamp }`    |
 | `robot_connected`    | Indica que el robot se ha conectado correctamente.           | `{ status: "connected", timestamp }`    |
 | `robot_disconnected` | Indica que el robot se ha desconectado.                      | `{ status: "disconnected", timestamp }` |
-<<<<<<< HEAD
 | `robot_error`        | Se dispara cuando el robot informa un error.                 | `{ type, message, timestamp }`          |
-=======
-| `robot_error`        | Se dispara cuando el robot informa un error.                 | `{ type, message, timestamp }`          |
->>>>>>> e0ee653694d35f6458bf39e8fbd8ad9420bf4c3d

@@ -1,9 +1,5 @@
 import { notifyClients } from '../../routes/stream.routes.js';
 import { handleImage } from './handleImage.js';
-<<<<<<< HEAD
-
-=======
->>>>>>> e0ee653694d35f6458bf39e8fbd8ad9420bf4c3d
 
 export const handleObstacle = async (body) => {
   try {

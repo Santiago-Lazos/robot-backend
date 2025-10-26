@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { config } from '../config.js';
 
-// Pequeño helper para esperar entre comandos
+// Helper para esperar entre comandos
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const sendCommand = async (robotId, command) => {
@@ -15,24 +15,37 @@ export const sendCommand = async (robotId, command) => {
       console.log(
         `📦 Enviando ${command.length} comandos al robot ${robotId}...`
       );
+
       for (const [i, cmd] of command.entries()) {
+        const delayTime = cmd.content?.time ?? 0;
+
         console.log(`➡️ Enviando comando ${i + 1}/${command.length}:`, cmd);
         await sendCommand(robotId, cmd);
-        await delay(300); // Espera 300ms entre comandos
+
+        if (delayTime > 0) {
+          console.log(
+            `⏳ Esperando ${delayTime} ms antes del siguiente comando...`
+          );
+          await delay(delayTime);
+        }
       }
-      console.log('✅ Todos los comandos enviados.');
+
+      console.log('✅ Secuencia de comandos completada.');
       return;
     }
 
     // Validar estructura del comando individual
-    if (!command.type || !command.content) {
-      throw new Error(`Comando inválido: falta 'type' o 'content'`);
+    if (!command.type) {
+      throw new Error(`Comando inválido: falta 'type'`);
     }
+
+    // Si no tiene content, asignar objeto vacío por defecto
+    const content = command.content ?? {};
 
     const messageContent = {
       robotId,
       commandType: command.type,
-      content: command.content
+      content
     };
 
     console.log('🚀 Enviando comando al robot:', messageContent);
@@ -51,5 +64,4 @@ export const sendCommand = async (robotId, command) => {
     console.error('❌ Error enviando comando al robot:', error.message);
     throw error;
   }
-
 };

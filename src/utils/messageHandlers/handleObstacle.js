@@ -1,10 +1,17 @@
 import { notifyClients } from '../../routes/stream.routes.js';
 import { handleImage } from './handleImage.js';
+<<<<<<< HEAD
 
+=======
+>>>>>>> e0ee653694d35f6458bf39e8fbd8ad9420bf4c3d
 
 export const handleObstacle = async (body) => {
   try {
     const { robotId, content } = body;
+
+    if (!content) {
+      return { message: 'Falta content en el body JSON.' };
+    }
 
     // 1. Notificar a los clientes SSE
     notifyClients('obstacle_detected', {
@@ -15,7 +22,7 @@ export const handleObstacle = async (body) => {
     // 2. Ejecutar análisis de imagen
     const imageResult = await handleImage({
       robotId,
-      content: content.image
+      content: content?.image
     });
 
     return {
@@ -25,6 +32,6 @@ export const handleObstacle = async (body) => {
     };
   } catch (error) {
     console.error('❌ Error al procesar detección de obstáculo:', error);
-    throw error;
+    return { message: 'Error al procesar detección de obstáculo' };
   }
 };

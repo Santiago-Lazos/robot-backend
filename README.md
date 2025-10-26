@@ -22,19 +22,28 @@ Centralizar el flujo de datos entre los servicios del robot:
 
 ## 🧱 Estructura del Proyecto
 
+```
 robot-backend/
 ├─ src/
 │ ├─ models/
+<<<<<<< HEAD
 │ │ ├─ Image.js → Esquema de imágenes en MongoDB Atlas
 │ │ └─ Log.js → Esquema de logs del sistema (errores e información)
+=======
+│ │ └─ Image.js → Esquema de imágenes en MongoDB Atlas
+>>>>>>> e0ee653694d35f6458bf39e8fbd8ad9420bf4c3d
 │ │
 │ ├─ routes/
 │ │ ├─ commands.routes.js → /api/robot/command → Envío de comandos al robot
 │ │ ├─ sensors.routes.js → /api/sensors/data → Lectura de sensores
 │ │ ├─ status.routes.js → /api/status → Estado general del robot
 │ │ ├─ images.routes.js → /api/images → Registro, análisis y consulta de imágenes
+<<<<<<< HEAD
 │ │ ├─ logs.routes.js → /api/logs → Consulta de logs guardados en MongoDB (panel administrativo)
 │ │ ├─ webhook.routes.js → /api/webhook → Recepción de datos desde el Bridge (errores, imágenes, etc.)
+=======
+│ │ ├─ webhook.routes.js → /api/webhook → Recepción de datos desde el Bridge
+>>>>>>> e0ee653694d35f6458bf39e8fbd8ad9420bf4c3d
 │ │ └─ stream.routes.js → /api/stream → Eventos SSE en tiempo real
 │ │
 │ ├─ utils/
@@ -42,24 +51,40 @@ robot-backend/
 │ │ │ ├─ handleAck.js → Procesa confirmaciones (ACK)
 │ │ │ ├─ handleConnected.js → Procesa conexión del robot
 │ │ │ ├─ handleDisconnected.js → Procesa desconexión del robot
+<<<<<<< HEAD
 │ │ │ ├─ handleError.js → Procesa errores del robot y los guarda en logs de MongoDB
 │ │ │ ├─ handleImage.js → Procesa imágenes capturadas por el robot
 │ │ │ ├─ handleObstacle.js → Procesa detección de obstáculos
+=======
+│ │ │ ├─ handleError.js → Procesa errores del robot
+>>>>>>> e0ee653694d35f6458bf39e8fbd8ad9420bf4c3d
 │ │ │ ├─ handleUnknown.js → Captura tipos de mensajes no reconocidos
 │ │ │ └─ index.js → Exporta y organiza los handlers
 │ │ ├─ analyzeImageWithAI.js → Análisis de imágenes con OpenAI
 │ │ ├─ decodeQRFromBuffer.js → Decodificación de QR desde buffer
 │ │ ├─ handleSign.js → Procesa señales (órdenes) del robot
+<<<<<<< HEAD
 │ │ ├─ upload.js → Subida de imágenes a Cloudflare R2
 │ │ └─ sendCommand.js → Envío de comandos al robot a través del Bridge
 │ │
 │ ├─ config.js → Configuración general y variables de entorno
 │ └─ server.js → Servidor principal Express, conexión a MongoDB y registro de rutas
+=======
+│ │ ├─ upload.js → Subida de imágenes
+│ │ └─ sendCommand.js → Envío de comandos al robot
+│ │
+│ ├─ config.js → Configuración general y variables de entorno
+│ └─ server.js → Servidor principal Express y conexión a MongoDB
+>>>>>>> e0ee653694d35f6458bf39e8fbd8ad9420bf4c3d
 │
 ├─ .env.example → Ejemplo de variables de entorno necesarias
 ├─ package.json → Dependencias del proyecto
 ├─ package-lock.json → Versión bloqueada de dependencias
 └─ README.md → Documentación técnica de la API
+<<<<<<< HEAD
+=======
+```
+>>>>>>> e0ee653694d35f6458bf39e8fbd8ad9420bf4c3d
 
 ---
 
@@ -140,6 +165,7 @@ Body de ejemplo:
 - POST `/api/images/scan-qr/base64` → Escanea un QR desde una base64.
 - POST `/api/images/ai-analyze` → Analiza una imagen con IA.
 
+<<<<<<< HEAD
 ---
 
 ### 🧾 Logs del sistema (Panel de Administración)
@@ -168,6 +194,10 @@ Recibe mensajes desde el **Bridge**, incluyendo errores provenientes del robot.
 
 #### 🌐 Webhook
 
+=======
+#### 🌐 Webhook
+
+>>>>>>> e0ee653694d35f6458bf39e8fbd8ad9420bf4c3d
 - POST `/api/webhook` → Recibe datos desde el Bridge (por ejemplo, imágenes o lecturas).
 
 ---
@@ -212,4 +242,8 @@ El endpoint del stream es: `/api/stream`
 | `ack_received`       | Confirmación de que el robot recibió o completó una acción.  | `{ type, action, state, timestamp }`    |
 | `robot_connected`    | Indica que el robot se ha conectado correctamente.           | `{ status: "connected", timestamp }`    |
 | `robot_disconnected` | Indica que el robot se ha desconectado.                      | `{ status: "disconnected", timestamp }` |
+<<<<<<< HEAD
 | `robot_error`        | Se dispara cuando el robot informa un error.                 | `{ type, message, timestamp }`          |
+=======
+| `robot_error`        | Se dispara cuando el robot informa un error.                 | `{ type, message, timestamp }`          |
+>>>>>>> e0ee653694d35f6458bf39e8fbd8ad9420bf4c3d

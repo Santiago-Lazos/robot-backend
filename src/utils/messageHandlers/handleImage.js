@@ -23,13 +23,18 @@ const s3 = new AWS.S3({
 
 export const handleImage = async (body) => {
   const { robotId, content } = body;
+
+  if (!content) {
+    return { message: 'Falta content en el body JSON.' };
+  }
+
   let { base64 } = content;
 
   let tempFilePath = null;
 
   try {
     if (!base64) {
-      throw new Error('Falta base64 en el body JSON.');
+      return { message: 'Falta base64 en el body JSON.' };
     }
 
     // Remover prefijo `data:` de la base64 si está presente
@@ -78,7 +83,7 @@ export const handleImage = async (body) => {
         .promise();
     } catch (r2Err) {
       console.error('❌ Error subiendo a R2:', r2Err);
-      throw new Error('Error subiendo imagen a Cloudflare R2');
+      return { message: 'Error subiendo imagen a Cloudflare R2' };
     }
 
     const publicUrl = `${config.r2PublicUrl}/intercarreras/${encodeURIComponent(
@@ -138,7 +143,7 @@ export const handleImage = async (body) => {
     };
   } catch (error) {
     console.error('❌ Error al procesar la imagen:', error);
-    throw error;
+    return { message: 'Error al procesar la imagen' };
   } finally {
     if (tempFilePath) {
       await fs.promises.unlink(tempFilePath).catch(() => {});

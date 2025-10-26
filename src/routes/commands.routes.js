@@ -1,81 +1,60 @@
-import { Router } from "express";
-import mongoose from "mongoose";
-import { config } from "../config.js";
-import { sendCommand } from "../utils/sendCommand.js"; 
+import { Router } from 'express';
+import { config } from '../config.js';
+import { sendCommand } from '../utils/sendCommand.js';
 
 const router = Router();
 
-// Base de datos simulada en memoria (temporal)
-const commands = [];
-
 /**
  * POST /api/robot/command
- * Envía un comando al robot, reenviándolo al Bridge (HTTP) o simulando localmente.
+ * Envía un comando al robot, pasando por el Bridge (HTTP).
  */
-router.post("/", async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const { robotId, source, task, value, userId } = req.body;
+    if (!config.bridgeUrl) {
+      return res.status(500).json({
+        error: 'BRIDGE_URL no configurada. No se puede enviar el comando.'
+      });
+    }
 
-    // Validación mínima
-    if (!task || typeof task !== "string") {
-      return res.status(400).json({ error: 'El campo "task" es obligatorio y debe ser texto.' });
+    const { robotId, commandType, content } = req.body;
+
+    // Validaciones
+    if (!robotId || !commandType) {
+      return res.status(400).json({
+        error:
+          'Faltan campos obligatorios en el body JSON: robotId o commandType.'
+      });
     }
 
     // Crear objeto comando
     const command = {
-      _id: new mongoose.Types.ObjectId(),
-      robotId: robotId || "robot-demo",
-      source: source || "web_rc",
-      task,
-      value: value || null,
-      timestamp: new Date(),
-      status: "pending",
-      userId: userId || null,
+      robotId,
+      commandType,
+      content,
+      status: 'pending'
     };
 
-    // Guardar en memoria (simulado)
-    commands.push(command);
+    try {
+      await sendCommand(command.robotId, {
+        type: command.commandType,
+        content: command.content
+      });
 
-    // ===========================
-    // NUEVO: Usar sendCommand()
-    // ===========================
-    if (config.bridgeUrl) {
-      try {
-        await sendCommand(command.robotId, {
-          type: "move", 
-          content: { direction: command.task, value: command.value },
-        });
-
-        console.log(`✅ Comando enviado al Bridge: ${task}`);
-        command.status = "sent";
-      } catch (bridgeErr) {
-        console.warn("⚠️ Error al enviar al Bridge:", bridgeErr.message);
-        command.status = "failed";
-      }
-    } else {
-      console.log("⚠️ BRIDGE_URL no configurada. Simulación local.");
+      command.status = 'sent';
+    } catch (bridgeErr) {
+      console.warn('⚠️ Error al enviar al Bridge:', bridgeErr.message);
+      command.status = 'failed';
     }
 
     res.json({
       ok: true,
-      message: `Comando procesado: ${task}`,
-      command,
+      message: `Comando procesado: ${commandType}`,
+      command
     });
   } catch (err) {
-    console.error("❌ Error en /api/robot/command:", err);
-    res.status(500).json({ error: "Error interno al procesar el comando." });
+    console.error('❌ Error en /api/robot/command:', err);
+    res.status(500).json({ error: 'Error interno al procesar el comando.' });
   }
-});
-
-/**
- * GET /api/robot/command
- * Devuelve la lista de comandos enviados (simulada)
- */
-router.get("/", (_, res) => {
-  res.json({
-    total: commands.length,
-    commands: commands.slice(-20).reverse(), // últimos 20 comandos
-  });
 });
 
 export default router;

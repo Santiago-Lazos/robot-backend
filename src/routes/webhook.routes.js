@@ -1,11 +1,13 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
   handleAck,
   handleConnected,
   handleDisconnected,
   handleError,
   handleUnknown,
-} from "../utils/messageHandlers/index.js";
+  handleImage,
+  handleObstacle
+} from '../utils/messageHandlers/index.js';
 
 const router = Router();
 
@@ -13,52 +15,60 @@ const router = Router();
  * POST /api/webhook
  * Recibe mensajes del Bridge con distintos tipos de eventos del robot.
  */
-router.post("/", async (req, res) => {
-  const { messageType, content } = req.body;
+router.post('/', async (req, res) => {
+  res.sendStatus(200);
+
+  const { messageType, content, robotId } = req.body;
 
   if (!messageType) {
-    return res.status(400).json({ error: "Falta el campo 'messageType'." });
+    console.error('Falta messageType en el body JSON.');
+    console.log('Body:', req.body);
+    return;
   }
-
-  if (!content) {
-    return res.status(400).json({ error: "Falta el campo 'content'." });
-  }
-
-  // Extraer robotId desde content
-  const { robotId } = content;
 
   console.log(`📩 Mensaje recibido desde Bridge: ${messageType}`);
+  if (!robotId) {
+    console.error('Falta robotId en el body JSON.');
+    console.log('Body:', req.body);
+    return;
+  }
+
+  let result = null;
 
   try {
     switch (messageType) {
-      case "ack":
-        await handleAck(content);
+      case 'ack':
+        result = handleAck(robotId, content);
         break;
 
-      case "connected":
-        await handleConnected();
+      case 'connected':
+        result = handleConnected(robotId);
         break;
 
-      case "disconnected":
-        await handleDisconnected();
+      case 'disconnected':
+        result = handleDisconnected(robotId);
         break;
 
-      case "error":
-        
-        await handleError({ ...content, robotId });
+      case 'error':
+        result = await handleError(robotId, content);
+        break;
+
+      case 'image':
+        result = await handleImage(req.body);
+        break;
+
+      case 'obstacle':
+        result = await handleObstacle(req.body);
         break;
 
       default:
-        await handleUnknown(req.body);
+        result = handleUnknown(req.body);
     }
 
-    res.json({
-      ok: true,
-      message: `Evento '${messageType}' procesado correctamente.`,
-    });
-  } catch (err) {
-    console.error("❌ Error en webhook:", err.message);
-    res.status(500).json({ error: err.message });
+    console.log('RESULTADO DE WEBHOOK:', result);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(500);
   }
 });
 

@@ -39,7 +39,9 @@ router.post('/', async (req, res) => {
     const now = Date.now();
     if (lastCommandTime) {
       const diff = now - lastCommandTime;
-      console.log(`⏱️ Tiempo desde la última petición: ${diff} ms`);
+      console.log(
+        `\x1b[35m⏱️ TIEMPO DESDE LA ÚLTIMA PETICIÓN: ${diff} ms:\x1b[0m`
+      );
     }
 
     lastCommandTime = now;

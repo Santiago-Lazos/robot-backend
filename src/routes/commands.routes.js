@@ -4,6 +4,8 @@ import { sendCommand } from '../utils/sendCommand.js';
 
 const router = Router();
 
+let lastCommandTime = null;
+
 /**
  * POST /api/robot/command
  * Envía un comando al robot, pasando por el Bridge (HTTP).
@@ -33,6 +35,14 @@ router.post('/', async (req, res) => {
       content,
       status: 'pending'
     };
+
+    const now = Date.now();
+    if (lastCommandTime) {
+      const diff = now - lastCommandTime;
+      console.log(`⏱️ Tiempo desde la última petición: ${diff} ms`);
+    }
+
+    lastCommandTime = now;
 
     try {
       await sendCommand(command.robotId, {

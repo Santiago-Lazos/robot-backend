@@ -1,5 +1,8 @@
 import express from "express";
 import User from "../models/User.js";
+import { checkRole } from "../middlewares/checkRole.js";
+import jwt from "jsonwebtoken";
+const JWT_SECRET = process.env.JWT_SECRET || "default_secret";
 
 const router = express.Router();
 
@@ -107,5 +110,56 @@ router.patch("/user/:id", async (req, res) => {
   }
 });
 
+// PROTEGIDO CON MIDDLEWARE DE ROL
+// Solo los operadores pueden acceder al panel del robot
+router.post("/access-operator", checkRole(["operator"]), (req, res) => {
+  res.json({
+    message: "Acceso permitido al panel del operador",
+    user: req.user,
+    role: req.user.role
+  });
+});
+
+// Solo los administradores pueden acceder al panel de administración
+router.post("/access-admin", checkRole(["admin"]), (req, res) => {
+  res.json({
+    message: "Acceso permitido al panel del administrador",
+    user: req.user,
+    role: req.user.role
+  });
+});
+router.post("/generate-token", checkRole(["admin"]), async (req, res) => {
+  try {
+    const user = req.user; 
+    // Generamos un token con expiración corta
+    const token = jwt.sign(
+      {
+        auth0Id: user.auth0Id,
+        email: user.email,
+        role: user.role,
+      },
+      JWT_SECRET,
+      { expiresIn: "5m" } // dura 5 minutos
+    );
+
+    res.json({ token });
+  } catch (err) {
+    console.error("Error generando token:", err);
+    res.status(500).json({ message: "Error generando token" });
+  }
+});
+
+router.post("/validate-token", (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ message: "Token faltante" });
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    res.json({ valid: true, user: decoded });
+  } catch (err) {
+    console.error("Error validando token:", err);
+    res.status(401).json({ message: "Token inválido o expirado" });
+  }
+});
 
 export default router;

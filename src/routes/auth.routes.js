@@ -162,4 +162,35 @@ router.post("/validate-token", (req, res) => {
   }
 });
 
+/*
+ * POST /api/auth/refresh-token
+ * Recibe auth0Id y genera un nuevo token válido por 5 minutos
+ */
+router.post("/refresh-token", async (req, res) => {
+  try {
+    const { auth0Id } = req.body;
+    if (!auth0Id) return res.status(400).json({ message: "auth0Id es requerido" });
+
+    // Buscar usuario por auth0Id
+    const user = await User.findOne({ auth0Id });
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    // Generar nuevo token JWT
+    const token = jwt.sign(
+      {
+        auth0Id: user.auth0Id,
+        email: user.email,
+        role: user.role,
+      },
+      JWT_SECRET,
+      { expiresIn: "5m" } // dura 5 minutos
+    );
+
+    res.json({ token });
+  } catch (err) {
+    console.error("Error regenerando token:", err);
+    res.status(500).json({ message: "Error al regenerar token" });
+  }
+});
+
 export default router;

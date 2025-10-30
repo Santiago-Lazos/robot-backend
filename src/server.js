@@ -9,6 +9,7 @@ import sensorsRoutes from './routes/sensors.routes.js';
 import imagesRoutes from './routes/images.routes.js';
 import webhookRoutes from './routes/webhook.routes.js';
 import streamRoutes from './routes/stream.routes.js';
+import authRoutes from './routes/auth.routes.js';
 
 const app = express();
 
@@ -44,6 +45,9 @@ app.use('/api/status', statusRoutes);
 app.use('/api/images', imagesRoutes);
 app.use('/api/webhook', webhookRoutes);
 app.use('/api/stream', streamRoutes);
+
+//endpoint de auth
+app.use("/api/auth", authRoutes);
 
 app.listen(config.port, () => {
   console.log(`✅ API escuchando en http://localhost:${config.port}`);

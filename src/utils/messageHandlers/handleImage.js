@@ -9,6 +9,7 @@ import { analyzeImageWithAI } from '../../utils/analyzeImageWithAI.js';
 import { notifyClients } from '../../routes/stream.routes.js';
 import { sendCommand } from '../sendCommand.js';
 import { handleSign } from '../handleSign.js';
+import { sendCommandSequence } from '../sendCommandSequence.js';
 
 const TEMP_DIR = path.join(process.cwd(), 'temp');
 
@@ -113,12 +114,14 @@ export const handleImage = async (body) => {
       try {
         const parsed = JSON.parse(analysisResult);
 
-        const isValidCommand =
-          parsed &&
-          (Array.isArray(parsed) ||
-            (typeof parsed === 'object' && parsed.type && parsed.content));
-
-        if (isValidCommand) {
+        if (Array.isArray(parsed)) {
+          console.log('📡 Enviando secuencia de comandos al robot:', parsed);
+          await sendCommandSequence(robotId, parsed);
+        } else if (
+          typeof parsed === 'object' &&
+          parsed.type &&
+          parsed.content
+        ) {
           console.log('📡 Enviando comando(s) al robot:', parsed);
           await sendCommand(robotId, parsed);
         } else {

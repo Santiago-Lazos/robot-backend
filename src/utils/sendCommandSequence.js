@@ -15,7 +15,7 @@ export const sendCommandSequence = async (robotId, commands) => {
 
     // Validar formato básico de cada comando
     const invalid = commands.find(
-      (cmd) => typeof cmd !== 'object' || !cmd.type
+      (cmd) => typeof cmd !== 'object' || !cmd.commandType
     );
     if (invalid) {
       throw new Error(

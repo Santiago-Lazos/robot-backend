@@ -33,7 +33,7 @@ export async function analyzeImageWithAI(imageInput) {
 
       1. "sign": si es una señal o indicación visual (por ejemplo flechas, carteles, pictogramas o símbolos) que indique una acción o dirección.
         - En este caso, responde con una palabra o frase exacta y estable que describa la indicación. Puede ser:
-          "Izquierda", "Derecha", "Avanzar", "Retroceder", "Carga", "Descarga" o "Detener". Si no es ninguna de ellas, la imagen es de tipo "other".
+          "Izquierda", "Derecha", "Avanzar", "Retroceder", "Automático", "Iniciar" o "Detener". Si no es ninguna de ellas, la imagen es de tipo "other".
         - Debe ser **siempre la misma respuesta textual para la misma señal visual**, aunque cambie el fondo o el ángulo.
 
       2. "other": si no parece una señal o no coincide con ninguna de las indicaciones mencionadas.

@@ -132,9 +132,16 @@ export const handleImage = async (body) => {
       }
     } else if (type === 'sign' && analysisResult) {
       const signData = handleSign(analysisResult);
+      console.log('signData:', signData);
       if (signData) {
         console.log('📡 Enviando comando (señal) al robot:', signData);
-        await sendCommand(robotId, signData);
+        if (Array.isArray(signData)) {
+          console.log('es un array');
+          await sendCommandSequence(robotId, signData);
+        } else {
+          console.log('es un objeto');
+          await sendCommand(robotId, signData);
+        }
       }
     }
 

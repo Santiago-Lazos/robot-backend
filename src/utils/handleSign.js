@@ -3,28 +3,28 @@ export const handleSign = (sign) => {
   switch (sign) {
     case 'Avanzar':
       command = {
-        commandType: 'move',
+        type: 'move',
         content: { direction: 'forward', time: 2000 }
       };
       break;
     case 'Retroceder':
       command = {
-        commandType: 'move',
+        type: 'move',
         content: { direction: 'backward', time: 2000 }
       };
       break;
     case 'Detener':
-      command = { commandType: 'stop' };
+      command = { type: 'stop' };
       break;
     case 'Izquierda':
       command = {
-        commandType: 'turn',
+        type: 'turn',
         content: { direction: 'left', time: 500 }
       };
       break;
     case 'Derecha':
       command = {
-        commandType: 'turn',
+        type: 'turn',
         content: { direction: 'right', time: 500 }
       };
       break;

@@ -1,12 +1,12 @@
 export const handleSign = (sign) => {
   let command = null;
   switch (sign) {
-    case 'Avanzar':
+    /* case 'Avanzar':
       command = {
         type: 'move',
         content: { direction: 'forward', time: 6000 }
       };
-      break;
+      break; */
     case 'Retroceder':
       command = {
         type: 'move',

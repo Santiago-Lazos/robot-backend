@@ -4,13 +4,13 @@ export const handleSign = (sign) => {
     case 'Avanzar':
       command = {
         type: 'move',
-        content: { direction: 'forward', time: 2000 }
+        content: { direction: 'forward', time: 6000 }
       };
       break;
     case 'Retroceder':
       command = {
         type: 'move',
-        content: { direction: 'backward', time: 2000 }
+        content: { direction: 'backward', time: 6000 }
       };
       break;
     case 'Detener':
@@ -19,26 +19,28 @@ export const handleSign = (sign) => {
     case 'Izquierda':
       command = {
         type: 'turn',
-        content: { direction: 'left', time: 500 }
+        content: { direction: 'left', time: 1500 }
       };
       break;
     case 'Derecha':
       command = {
         type: 'turn',
-        content: { direction: 'right', time: 500 }
+        content: { direction: 'right', time: 1500 }
       };
       break;
     case 'Iniciar':
       command = [
-        { commandType: 'move', content: { direction: 'forward', time: 500 } },
-        { commandType: 'turn', content: { direction: 'right', time: 200 } },
-        { commandType: 'move', content: { direction: 'forward', time: 300 } },
-        { commandType: 'turn', content: { direction: 'left', time: 500 } },
-        { commandType: 'lift', content: { direction: 'up', time: 2000 } },
-        { commandType: 'move', content: { direction: 'backward', time: 500 } },
-        { commandType: 'turn', content: { direction: 'left', time: 200 } },
-        { commandType: 'move', content: { direction: 'forward', time: 1000 } },
-        { commandType: 'lift', content: { direction: 'down', time: 2000 } }
+        { commandType: 'move', content: { direction: 'forward', time: 1500 } },
+        { commandType: 'turn', content: { direction: 'right', time: 600 } },
+        { commandType: 'move', content: { direction: 'forward', time: 900 } },
+        { commandType: 'turn', content: { direction: 'left', time: 1500 } },
+        { commandType: 'lift', content: { direction: 'up', time: 3000 } },
+        { commandType: 'tilt', content: { direction: 'up', time: 500 } },
+        { commandType: 'move', content: { direction: 'backward', time: 1500 } },
+        { commandType: 'turn', content: { direction: 'left', time: 600 } },
+        { commandType: 'move', content: { direction: 'forward', time: 3000 } },
+        { commandType: 'lift', content: { direction: 'down', time: 2000 } },
+        { commandType: 'tilt', content: { direction: 'down', time: 300 } }
       ];
       break;
     default:

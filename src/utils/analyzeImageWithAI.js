@@ -35,6 +35,7 @@ export async function analyzeImageWithAI(imageInput) {
         - En este caso, responde con una palabra o frase exacta y estable que describa la indicación. Puede ser:
           "Izquierda", "Derecha", "Retroceder", "Iniciar" o "Detener". Si no es ninguna de ellas, la imagen es de tipo "other".
         - Debe ser **siempre la misma respuesta textual para la misma señal visual**, aunque cambie el fondo o el ángulo.
+        - Si identificas la palabra "Start", "Iniciar" o "Comenzar", la imagen es de tipo "Iniciar".
 
       2. "other": si no parece una señal o no coincide con ninguna de las indicaciones mencionadas.
         - En este caso, responde con una descripción breve (máx. 10 palabras) de lo que ves, como:

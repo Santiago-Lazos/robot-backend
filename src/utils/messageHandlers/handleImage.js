@@ -117,11 +117,7 @@ export const handleImage = async (body) => {
         if (Array.isArray(parsed)) {
           console.log('📡 Enviando secuencia de comandos al robot:', parsed);
           await sendCommandSequence(robotId, parsed);
-        } else if (
-          typeof parsed === 'object' &&
-          parsed.type &&
-          parsed.content
-        ) {
+        } else if (typeof parsed === 'object') {
           console.log('📡 Enviando comando(s) al robot:', parsed);
           await sendCommand(robotId, parsed);
         } else {
